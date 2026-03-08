@@ -3,19 +3,39 @@ from __future__ import annotations
 from pathlib import Path
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
+from contextlib import asynccontextmanager
+import asyncio
 
+from app.job_sync import WeeklyJobSyncService
 from app.rag_matcher import JobMatcherRAG, parse_uploaded_text
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 KB_PATH = BASE_DIR / "data" / "job_profiles.json"
 
-app = FastAPI(title="RAG Job Matcher", version="1.0.0")
 matcher = JobMatcherRAG(KB_PATH)
+sync_service = WeeklyJobSyncService(KB_PATH)
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    task = asyncio.create_task(sync_service.run_forever())
+    try:
+        yield
+    finally:
+        task.cancel()
+
+
+app = FastAPI(title="RAG Job Matcher", version="1.1.0", lifespan=lifespan)
 
 
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@app.post("/sync-jobs")
+def sync_jobs() -> dict[str, int]:
+    return sync_service.run_sync()
 
 
 @app.post("/match-job")
