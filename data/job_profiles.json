@@ -1,0 +1,27 @@
+[
+  {
+    "title": "后端开发工程师",
+    "description": "负责服务端系统设计与开发，熟悉 Python/Java、数据库、API 设计、微服务与性能优化。",
+    "skills": ["python", "java", "sql", "api", "微服务", "linux", "redis"]
+  },
+  {
+    "title": "数据分析师",
+    "description": "负责业务数据分析、报表搭建、指标体系建设，熟悉 SQL、Python、可视化工具与统计方法。",
+    "skills": ["sql", "python", "统计", "tableau", "power bi", "数据可视化", "分析"]
+  },
+  {
+    "title": "算法工程师（NLP）",
+    "description": "负责自然语言处理模型训练与优化，熟悉机器学习、深度学习、PyTorch、LLM、向量检索。",
+    "skills": ["nlp", "机器学习", "深度学习", "pytorch", "llm", "向量数据库", "rag"]
+  },
+  {
+    "title": "产品经理",
+    "description": "负责需求分析、产品规划、跨团队协作与项目推进，具备用户研究、原型设计和数据驱动能力。",
+    "skills": ["需求分析", "原型", "axure", "项目管理", "用户研究", "数据分析", "沟通"]
+  },
+  {
+    "title": "前端开发工程师",
+    "description": "负责 Web 前端应用开发，熟悉 JavaScript/TypeScript、React/Vue、工程化和性能优化。",
+    "skills": ["javascript", "typescript", "react", "vue", "html", "css", "前端工程化"]
+  }
+]
