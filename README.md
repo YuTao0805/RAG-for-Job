@@ -1,29 +1,63 @@
 # RAG-for-Job
-Multimodal Document RAG：简历生成 + JD 对接 + 面试题/笔试题
 
-安装依赖
-上传文件到 data/raw/（你的 CV、论文 PDF、证书图片都行）
+一个基于 **RAG（检索增强生成）** 的职业匹配示例服务：
+- 上传简历文本文件（`.txt/.md/.csv`）
+- 系统从岗位知识库中检索最相关岗位
+- 生成匹配结果与命中技能说明
 
-依次运行：
+## 项目结构
 
-python scripts/01_ingest.py
+```text
+.
+├── app/
+│   ├── main.py           # FastAPI 接口
+│   └── rag_matcher.py    # RAG 检索+生成逻辑
+├── data/
+│   └── job_profiles.json # 岗位知识库
+├── tests/
+│   └── test_rag_matcher.py
+└── requirements.txt
+```
 
-python scripts/02_build_index.py
+## 快速开始
 
-python scripts/03_demo_resume.py --role "Multimodal RAG Engineer"
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8000
+```
 
-python scripts/04_demo_jd_match.py --jd_file data/raw/jd.txt
+## 调用示例
 
-python scripts/05_demo_interview.py --jd_file data/raw/jd.txt
+```bash
+curl -X POST 'http://127.0.0.1:8000/match-job?top_k=3' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: multipart/form-data' \
+  -F 'file=@resume.txt;type=text/plain'
+```
 
-python scripts/06_eval.py
+返回示例（节选）：
 
-输出：
+```json
+{
+  "filename": "resume.txt",
+  "result": {
+    "summary": "基于简历内容检索岗位知识库并生成匹配建议。",
+    "top_matches": [
+      {
+        "job_title": "数据分析师",
+        "score": 0.61,
+        "matched_skills": ["python", "sql"],
+        "reason": "检索到该岗位与简历在能力描述上语义相近，并命中技能关键词：python, sql。"
+      }
+    ]
+  }
+}
+```
 
-outputs/resume_en.md outputs/resume_zh.md
+## 测试
 
-outputs/jd_report.json
-
-outputs/interview_kit.md
-
-data/eval/report.json
+```bash
+python -m unittest discover -s tests -q
+```
