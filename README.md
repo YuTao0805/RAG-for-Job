@@ -4,6 +4,7 @@
 - 上传简历文本文件（`.txt/.md/.csv`）
 - 系统从岗位知识库中检索最相关岗位
 - 生成匹配结果与命中技能说明
+- 每周自动爬取大厂招聘页面，并将新增岗位汇总到本地知识库
 
 ## 项目结构
 
@@ -11,11 +12,13 @@
 .
 ├── app/
 │   ├── main.py           # FastAPI 接口
-│   └── rag_matcher.py    # RAG 检索+生成逻辑
+│   ├── rag_matcher.py    # RAG 检索+生成逻辑
+│   └── job_sync.py       # 招聘信息抓取与知识库同步
 ├── data/
 │   └── job_profiles.json # 岗位知识库
 ├── tests/
-│   └── test_rag_matcher.py
+│   ├── test_rag_matcher.py
+│   └── test_job_sync.py
 └── requirements.txt
 ```
 
@@ -28,7 +31,11 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8000
 ```
 
-## 调用示例
+服务启动后会在后台定期（每隔一周）执行一次招聘信息同步任务。
+
+## 接口说明
+
+### 1) 简历匹配岗位
 
 ```bash
 curl -X POST 'http://127.0.0.1:8000/match-job?top_k=3' \
@@ -37,22 +44,18 @@ curl -X POST 'http://127.0.0.1:8000/match-job?top_k=3' \
   -F 'file=@resume.txt;type=text/plain'
 ```
 
-返回示例（节选）：
+### 2) 手动触发招聘同步
+
+```bash
+curl -X POST 'http://127.0.0.1:8000/sync-jobs'
+```
+
+返回示例：
 
 ```json
 {
-  "filename": "resume.txt",
-  "result": {
-    "summary": "基于简历内容检索岗位知识库并生成匹配建议。",
-    "top_matches": [
-      {
-        "job_title": "数据分析师",
-        "score": 0.61,
-        "matched_skills": ["python", "sql"],
-        "reason": "检索到该岗位与简历在能力描述上语义相近，并命中技能关键词：python, sql。"
-      }
-    ]
-  }
+  "crawled": 10,
+  "inserted": 6
 }
 ```
 
